@@ -37,11 +37,11 @@ with open(output_file, 'w', newline='') as file:
     while current_time - start_time < total_duration:
         # Determine the current state
         elapsed_time = current_time - start_time
-        state = 'relax'
-        # if elapsed_time % (focus_duration + relax_duration) < focus_duration:
-        #     state = 'focus'
-        # else:
-        #     state = 'relax'
+        # state = 'relax'
+        if elapsed_time % (focus_duration + relax_duration) < focus_duration:
+            state = 'focus'
+        else:
+            state = 'relax'
 
         # Send notification on state change
         if state != last_state:

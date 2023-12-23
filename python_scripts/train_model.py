@@ -6,7 +6,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.utils import to_categorical
 
 # Load data
-file_path = 'eeg_data.csv'
+file_path = 'data_collection/eeg_data.csv'
 data = pd.read_csv(file_path)
 
 # Preprocessing
