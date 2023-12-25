@@ -37,3 +37,17 @@
 .cardGridText {
     text-align: left;
 }
+
+.spinnerLoad {
+    padding: 5%;
+}
+
+.drawerText {
+    text-align: center;
+    font-size: large;
+}
+
+.drawerButtons {
+    text-align: center;
+    word-spacing: 5%;
+}

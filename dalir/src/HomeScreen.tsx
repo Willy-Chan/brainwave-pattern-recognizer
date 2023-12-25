@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Card, Icon, IconName } from '@blueprintjs/core';
+import { Card, Icon, IconName, Drawer, Spinner, Button } from '@blueprintjs/core';
 import './HomeScreen.css';
 import Footer from './Footer';
+
 
 interface CardData {
     id: number;
@@ -19,22 +20,37 @@ const HomeScreen = () => {
     ];
 
     const [cards, setCards] = useState(initialCards);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [connectionStatus, setConnectionStatus] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+
+    const checkEEGConnection = async () => {
+        setIsLoading(true);
+        setConnectionStatus("");
+        try {
+            const response = await fetch('http://localhost:3001/check-eeg');
+            const message = await response.text();
+            setConnectionStatus(message);
+            /////// Update the card's selected status
+            const updatedCards = cards.map(card => {
+                if (card.id === 1) {
+                    return { ...card, selected: true };
+                }
+                return card;
+            });
+            setCards(updatedCards);
+        } catch (error) {
+            setConnectionStatus("Error connecting to EEG");
+        }
+        setIsLoading(false);
+    };
 
     const handleCardClick = (cardId: number) => {
-        // Show dialog (for simplicity, using alert)
-        alert('Card clicked!');
-
-        /////// Update the card's selected status
-        const updatedCards = cards.map(card => {
-            if (card.id === cardId) {
-                return { ...card, selected: true };
-            }
-            return card;
-        });
-
         if (cardId === 1) {
-            console.log(1);
-        };
+            setIsDrawerOpen(true);
+            checkEEGConnection();
+        }
 
         if (cardId === 2) {
             console.log(2);
@@ -43,9 +59,6 @@ const HomeScreen = () => {
         if (cardId === 3) {
             console.log(3);
         };
-
-        setCards(updatedCards);
-        console.log(updatedCards)
     };
 
     return (
@@ -62,6 +75,30 @@ const HomeScreen = () => {
                     </Card>
                 ))}
             </div>
+            <Drawer
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                title="EEG Connection"
+            >
+                <div>
+                    <Spinner className="spinnerLoad" size={50}/>
+                    <p className="drawerText">{connectionStatus || "Checking for EEG device..."}</p>
+                </div>
+                <div className="drawerButtons">
+                    <Button 
+                        text="Try Again" 
+                        onClick={checkEEGConnection} 
+                        disabled={isLoading} 
+                        className="bp3-minimal"
+                    />
+                    <Button 
+                        text="Continue" 
+                        onClick={() => {/* handle successful connection */}} 
+                        disabled={isLoading || connectionStatus !== "EEG Connected"} 
+                        intent="success"
+                    />
+                </div>
+            </Drawer>
 
             <Footer />
         </div>
