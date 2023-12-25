@@ -14,42 +14,23 @@ interface LiveGraphProps {
 const LiveGraph: React.FC<LiveGraphProps> = ({ dataIndex, label }) => {
     const [data, setData] = useState<EEGData[]>([]);
 
-    function connect() {
-        const ws = new WebSocket('ws://localhost:8080');
-
-        ws.onopen = () => {
-            console.log('Connected to the WebSocket server');
-        };
-
-        ws.onclose = (e) => {
-            console.log('WebSocket closed. Reconnecting...', e.reason);
-            setTimeout(() => connect(), 2000);
-        };
-
-        ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            ws.close();
-        };
-
-        ws.onmessage = (event) => {
-            const receivedData = JSON.parse(event.data).map(Number);
-            const newData: EEGData = { timestamp: Date.now(), values: receivedData };
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const mockValue = Math.random() * 100; // Generate a random value
+            const newData: EEGData = { timestamp: Date.now(), values: Array(10).fill(mockValue) };
 
             setData(currentData => {
                 const newDataArray = [...currentData, newData];
                 return newDataArray.slice(-5); // Keep only the latest 5 data points
             });
-        };
-    }
+        }, 1000); // Update every second
 
-    useEffect(() => {
-        connect();
-        return () => { /* WebSocket closing logic */ };
+        return () => clearInterval(intervalId); // Cleanup the interval on unmount
     }, []);
 
     return (
         <div>
-            <h3>{label}</h3>
+            <h3 className='graphLabel'>{label}</h3>
             <LineChart width={600} height={300} data={data.map(d => ({ timestamp: d.timestamp, value: d.values[dataIndex] }))}>
                 <XAxis dataKey="timestamp" tickFormatter={(timestamp) => {
                     const date = new Date(timestamp);

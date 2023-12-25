@@ -1,0 +1,39 @@
+/* HomeScreen.css */
+
+.homeScreen {
+    background-color: #f0f0f0; /* Grey background */
+    color: black;
+    height: 100vh; /* Full height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.asciiHeader {
+    font-size: 40pt; /* Adjust as needed */
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace; /* ASCII-style font */
+}
+
+.subHeading {
+    font-size: 14pt;
+    margin-bottom: 3%;
+    font-family: 'Courier New', Courier, monospace; /* ASCII-style font */
+}
+
+.cardGridContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Creates 3 columns */
+    grid-template-rows: repeat(3, 1fr); /* Creates 3 rows */
+    grid-gap: 20px;
+}
+
+.cardGridItem {
+    background-color: #ddd;
+    text-align: center;
+}
+
+.cardGridText {
+    text-align: left;
+}

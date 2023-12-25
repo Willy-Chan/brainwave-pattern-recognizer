@@ -1,0 +1,35 @@
+/* Footer.css */
+
+.footer {
+    background-color: #f5f8fa; /* Grey background */
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 0 20px;
+}
+
+.footer-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-section.links a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #394b59; /* BlueprintJS text color */
+}
+
+.footer-section.links a:hover {
+    text-decoration: underline;
+}

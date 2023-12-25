@@ -1,6 +1,8 @@
-import React from 'react';
-import { Navbar, Button, Alignment } from '@blueprintjs/core';
-import LiveGraph from './LiveGraph';
+import React, { useState } from 'react';
+import { Navbar, Button, Alignment, Drawer } from '@blueprintjs/core';
+import LiveGraphScreen from './LiveGraphScreen';
+import HomeScreen from './HomeScreen';
+import './App.css';
 
 import '@blueprintjs/core/lib/css/blueprint.css';
 
@@ -16,23 +18,41 @@ const dataPoints = [
     { label: "High Beta", index: 8 },
     { label: "Low Gamma", index: 9 },
     { label: "High Gamma", index: 10 },
-    // ... add other data points as needed
 ];
 
-const App: React.FC = () => (
-    <div className="bp4-dark">
-        <Navbar>
-          <Navbar.Group align={Alignment.LEFT}>
-            <Navbar.Heading>Dallir</Navbar.Heading>
-            <Navbar.Divider />
-            <Button className="bp3-minimal" icon="home" text="Home" />
-            <Button className="bp3-minimal" icon="document" text="Files" />
-          </Navbar.Group>
-        </Navbar>
-        {dataPoints.map(point => (
-            <LiveGraph key={point.label} dataIndex={point.index} label={point.label} />
-        ))}
-    </div>
-);
+const App: React.FC = () => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [activeScreen, setActiveScreen] = useState('home'); // 'home', 'liveGraph', 'another'
+
+  const handleDrawerOpen = () => setIsDrawerOpen(true);
+  const handleDrawerClose = () => setIsDrawerOpen(false);
+
+  return (
+      <div className="bp4-dark">
+          <Navbar>
+              <Navbar.Group align={Alignment.LEFT}>
+                  <Button className="bp3-minimal" icon="menu" onClick={handleDrawerOpen} />
+                  <Navbar.Divider />
+                  <Button className="bp3-minimal" icon="home" text="Home" onClick={() => setActiveScreen('home')} />
+                  <Button className="bp3-minimal" icon="graph" text="Live Graph" onClick={() => setActiveScreen('liveGraph')} />
+                  <Button className="bp3-minimal" icon="document" text="Another Screen" onClick={() => setActiveScreen('another')} />
+              </Navbar.Group>
+          </Navbar>
+          <Drawer
+              isOpen={isDrawerOpen}
+              onClose={handleDrawerClose}
+              title="Navigation"
+              position='left'
+          >
+              <Button className="bp3-minimal" icon="home" text="Home" onClick={() => setActiveScreen('home')} />
+              <Button className="bp3-minimal" icon="graph" text="Live Graph" onClick={() => setActiveScreen('liveGraph')} />
+              <Button className="bp3-minimal" icon="document" text="Another Screen" onClick={() => setActiveScreen('another')} />
+          </Drawer>
+          
+          {activeScreen === 'home' && <HomeScreen />}
+          {activeScreen === 'liveGraph' && <LiveGraphScreen dataPoints={dataPoints}/>}
+      </div>
+  );
+};
 
 export default App;
