@@ -27,32 +27,31 @@ const HomeScreen = () => {
     const [receivedData, setReceivedData] = useState("");
     const [ws, setWs] = useState<WebSocket | null>(null);
     const [wsData, setWsData] = useState("");
+    const [isWsConnected, setIsWsConnected] = useState(false);
+
 
     const connectWebSocket = () => {
         const newWs = new WebSocket('ws://localhost:3001');
 
         newWs.onopen = () => {
             console.log('Connected to WebSocket');
-        };
-
-        newWs.onmessage = (event) => {
-            console.log('Data received:', event.data);
-            setWsData(event.data);
-        };
-
-        newWs.onerror = (error) => {
-            console.error('WebSocket error:', error);
+            setIsWsConnected(true);
         };
 
         newWs.onclose = () => {
             console.log('WebSocket connection closed. Attempting to reconnect...');
+            setIsWsConnected(false);
             setTimeout(() => {
                 connectWebSocket();
             }, 3000); // Reconnect after 3 seconds
         };
 
+        newWs.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+    
         setWs(newWs);
-    };
+    };    
 
     useEffect(() => {
         connectWebSocket();
@@ -86,26 +85,21 @@ const HomeScreen = () => {
         setIsLoading(false);
     };
 
-    const getEEGData = async () => {
-        try {
-            const response = await fetch('http://localhost:3001/check-eeg'); // Replace with your actual endpoint
-            const data = await response.text();
-            setReceivedData(data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setReceivedData("Error fetching data");
-        }
-    };
-
     const handleCardClick = (cardId: number) => {
         if (cardId === 1) {
             setIsDrawerOpen(true);
             checkEEGConnection();
         }
 
-        if (cardId === 2) {
+        if (cardId === 2 && isWsConnected === true) {
             setIsDialogOpen(true);
-            getEEGData();            
+            const updatedCards = cards.map(card => {
+                if (card.id === 2) {
+                    return { ...card, selected: true };
+                }
+                return card;
+            });
+            setCards(updatedCards);
         };
 
         if (cardId === 3) {
@@ -157,17 +151,21 @@ const HomeScreen = () => {
             <Dialog
                 isOpen={isDialogOpen}
                 onClose={() => setIsDialogOpen(false)}
-                title="Received Data"
+                title="WebSocket Connection Status"
             >
                 <div>
-                    <p>{receivedData || "Waiting for data..."}</p>
+                    {isWsConnected ? 
+                        <Icon className="spinnerSuccess" icon="tick-circle" iconSize={50} intent="success" /> :
+                        <Spinner className="spinnerLoad" size={50} />
+                    }
+                    <p className='popupText'>{isWsConnected ? "WebSocket is connected." : "Connecting to WebSocket..."}</p>
                 </div>
                 <div>
-                    <div>
-                        <Button text="Close" onClick={() => setIsDialogOpen(false)} />
-                    </div>
+                    <Button text="Close" onClick={() => setIsDialogOpen(false)} />
                 </div>
             </Dialog>
+
+
 
             <Footer />
         </div>
