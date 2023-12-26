@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Card, Icon, IconName, Drawer, Spinner, Button } from '@blueprintjs/core';
+import { Card, Icon, IconName, Drawer, Spinner, Button, Dialog } from '@blueprintjs/core';
 import './HomeScreen.css';
 import Footer from './Footer';
-
+import { useEffect } from 'react';
 
 interface CardData {
     id: number;
@@ -15,7 +15,7 @@ interface CardData {
 const HomeScreen = () => {
     const initialCards: CardData[] = [
         { id: 1, title: "Device Setup", content: "Click here for instructions on how to setup your EEG.", icon: "signal-search", selected: false },
-        { id: 2, title: "WebSocket Connection", content: "After your device is verified and working, connect it with the app.", icon: "link", selected: false },
+        { id: 2, title: "WebSocket Connection", content: "After your device is verified and working, verify that it's logging data.", icon: "link", selected: false },
         { id: 3, title: "Start Training", content: "Once connected, start training the EEG to recognize your thoughts!", icon: "predictive-analysis", selected: false },
     ];
 
@@ -23,6 +23,46 @@ const HomeScreen = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [receivedData, setReceivedData] = useState("");
+    const [ws, setWs] = useState<WebSocket | null>(null);
+    const [wsData, setWsData] = useState("");
+
+    const connectWebSocket = () => {
+        const newWs = new WebSocket('ws://localhost:3001');
+
+        newWs.onopen = () => {
+            console.log('Connected to WebSocket');
+        };
+
+        newWs.onmessage = (event) => {
+            console.log('Data received:', event.data);
+            setWsData(event.data);
+        };
+
+        newWs.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        newWs.onclose = () => {
+            console.log('WebSocket connection closed. Attempting to reconnect...');
+            setTimeout(() => {
+                connectWebSocket();
+            }, 3000); // Reconnect after 3 seconds
+        };
+
+        setWs(newWs);
+    };
+
+    useEffect(() => {
+        connectWebSocket();
+
+        return () => {
+            if (ws) {
+                ws.close();
+            }
+        };
+    }, []);
 
 
     const checkEEGConnection = async () => {
@@ -46,6 +86,17 @@ const HomeScreen = () => {
         setIsLoading(false);
     };
 
+    const getEEGData = async () => {
+        try {
+            const response = await fetch('http://localhost:3001/check-eeg'); // Replace with your actual endpoint
+            const data = await response.text();
+            setReceivedData(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setReceivedData("Error fetching data");
+        }
+    };
+
     const handleCardClick = (cardId: number) => {
         if (cardId === 1) {
             setIsDrawerOpen(true);
@@ -53,7 +104,8 @@ const HomeScreen = () => {
         }
 
         if (cardId === 2) {
-            console.log(2);
+            setIsDialogOpen(true);
+            getEEGData();            
         };
 
         if (cardId === 3) {
@@ -81,24 +133,41 @@ const HomeScreen = () => {
                 title="EEG Connection"
             >
                 <div>
-                    <Spinner className="spinnerLoad" size={50}/>
+                    {connectionStatus === "EEG already connected" ? 
+                        <Icon className="spinnerSuccess" icon="tick-circle" iconSize={50} intent="success" /> :
+                        <Spinner className="spinnerLoad" size={50} />
+                    }
                     <p className="drawerText">{connectionStatus || "Checking for EEG device..."}</p>
                 </div>
                 <div className="drawerButtons">
                     <Button 
                         text="Try Again" 
                         onClick={checkEEGConnection} 
-                        disabled={isLoading} 
+                        disabled={isLoading || connectionStatus === "EEG already connected" } 
                         className="bp3-minimal"
                     />
                     <Button 
                         text="Continue" 
-                        onClick={() => {/* handle successful connection */}} 
-                        disabled={isLoading || connectionStatus !== "EEG Connected"} 
+                        onClick={() => {setIsDrawerOpen(false)}} 
+                        disabled={isLoading || connectionStatus === "Trying to connect EEG"} 
                         intent="success"
                     />
                 </div>
             </Drawer>
+            <Dialog
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                title="Received Data"
+            >
+                <div>
+                    <p>{receivedData || "Waiting for data..."}</p>
+                </div>
+                <div>
+                    <div>
+                        <Button text="Close" onClick={() => setIsDialogOpen(false)} />
+                    </div>
+                </div>
+            </Dialog>
 
             <Footer />
         </div>
