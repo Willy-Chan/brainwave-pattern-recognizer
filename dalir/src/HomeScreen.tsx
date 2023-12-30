@@ -12,7 +12,11 @@ interface CardData {
     selected: boolean;
 }
 
-const HomeScreen = () => {
+interface HomeScreenProps {
+    setActiveScreen: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({ setActiveScreen }) => {
     const initialCards: CardData[] = [
         { id: 1, title: "Device Setup", content: "Click here for instructions on how to setup your EEG.", icon: "signal-search", selected: false },
         { id: 2, title: "WebSocket Connection", content: "After your device is verified and working, verify that it's logging data.", icon: "link", selected: false },
@@ -103,7 +107,7 @@ const HomeScreen = () => {
         };
 
         if (cardId === 3) {
-            console.log(3);
+            setActiveScreen('training');
         };
     };
 

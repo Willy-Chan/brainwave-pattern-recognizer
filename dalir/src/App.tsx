@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Navbar, Button, Alignment, Drawer } from '@blueprintjs/core';
 import LiveGraphScreen from './LiveGraphScreen';
 import HomeScreen from './HomeScreen';
+import Training from './Training';
 import './App.css';
 
 import '@blueprintjs/core/lib/css/blueprint.css';
@@ -35,7 +36,7 @@ const App: React.FC = () => {
                   <Navbar.Divider />
                   <Button className="bp3-minimal" icon="home" text="Home" onClick={() => setActiveScreen('home')} />
                   <Button className="bp3-minimal" icon="graph" text="Live Graph" onClick={() => setActiveScreen('liveGraph')} />
-                  <Button className="bp3-minimal" icon="document" text="Another Screen" onClick={() => setActiveScreen('another')} />
+                  <Button className="bp3-minimal" icon="document" text="Another Screen" onClick={() => setActiveScreen('training')} />
               </Navbar.Group>
           </Navbar>
           <Drawer
@@ -46,11 +47,13 @@ const App: React.FC = () => {
           >
               <Button className="bp3-minimal" icon="home" text="Home" onClick={() => setActiveScreen('home')} />
               <Button className="bp3-minimal" icon="graph" text="Live Graph" onClick={() => setActiveScreen('liveGraph')} />
-              <Button className="bp3-minimal" icon="document" text="Another Screen" onClick={() => setActiveScreen('another')} />
+              <Button className="bp3-minimal" icon="document" text="Another Screen" onClick={() => setActiveScreen('training')} />
           </Drawer>
           
-          {activeScreen === 'home' && <HomeScreen />}
+          {activeScreen === 'home' && <HomeScreen setActiveScreen={ setActiveScreen }/>}
           {activeScreen === 'liveGraph' && <LiveGraphScreen dataPoints={dataPoints}/>}
+          {activeScreen === 'training' && <Training dataPoints={dataPoints}/>}
+
       </div>
   );
 };

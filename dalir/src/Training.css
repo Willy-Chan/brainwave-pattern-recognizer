@@ -1,0 +1,18 @@
+.graphLabel {
+    text-align: center;
+    font-size: large;
+    font-family:'Courier New', Courier, monospace;
+}
+
+.bigGraph {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cardGridContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Creates 3 columns */
+    grid-template-rows: repeat(3, 1fr); /* Creates 3 rows */
+    grid-gap: 20px;
+}
